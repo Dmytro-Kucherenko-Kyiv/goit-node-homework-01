@@ -1,8 +1,42 @@
-/* console.log('Welcome to Node-Homework-01') */
+const { listContacts, getContactById, removeContact, addContact } = require("./contacts")
+const { Command } = require('commander');
+const program = new Command();
+program
+  .option('-a, --action <type>', 'choose action')
+  .option('-i, --id <type>', 'user id')
+  .option('-n, --name <type>', 'user name')
+  .option('-e, --email <type>', 'user email')
+  .option('-p, --phone <type>', 'user phone');
 
-const contacts = require('./contacts');
+program.parse(process.argv);
 
-/* contacts()
-.then(data => console.log(data))
-.catch(error => console.error(error)); */
+const argv = program.opts();
 
+async function invokeAction({ action, id, name, email, phone }) {
+  switch (action) {
+    case 'list':
+      const allContacts = await listContacts();
+      console.table(allContacts);
+      break;
+
+    case 'get':
+      const contact = await getContactById(id);
+      contact === undefined ? console.log(null) : console.log(contact);
+      break;
+
+    case 'add':
+      const newContact = await addContact(name, email, phone);
+      console.log(newContact);
+      break;
+
+    case 'remove':
+      const removedContact = await removeContact(id);
+      removedContact === undefined ? console.log(null) : console.log(removedContact);
+      break;
+
+    default:
+      console.warn('\x1B[31m Unknown action type!');
+  }
+}
+
+invokeAction(argv);
